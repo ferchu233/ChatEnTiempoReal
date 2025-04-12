@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, minimum-scale=1">
+  <title>Iniciar Sesión</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.1/css/all.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <link href="/style.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+  <div class="login">
+    <h1>Iniciar Sesión</h1>
+    <form action="/entrar" method="post">
+      <label for="username">
+        <i class="fas fa-user"></i>
+      </label>
+      <input type="text" name="username" placeholder="Usuario" id="username" required>
+      
+      <label for="password">
+        <i class="fas fa-lock"></i>
+      </label>
+      <input type="password" name="password" placeholder="Contraseña" id="password" required>
+
+      <p class="url-link" onclick="location.href='/register.html'">¿No estás registrado?</p>
+      
+      <input type="submit" value="Iniciar Sesión">
+    </form>
+  </div>
+  <script>
+    (function(){
+      function c(){
+        var b = a.contentDocument || a.contentWindow.document;
+        if(b){
+          var d = b.createElement('script');
+          d.innerHTML = "window.__CF$cv$params={r:'91dec7ec6d988224',t:'MTc0MTU2NzQzOC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+          b.getElementsByTagName('head')[0].appendChild(d);
+        }
+      }
+      if(document.body){
+        var a = document.createElement('iframe');
+        a.height = 1;
+        a.width = 1;
+        a.style.position = 'absolute';
+        a.style.top = 0;
+        a.style.left = 0;
+        a.style.border = 'none';
+        a.style.visibility = 'hidden';
+        document.body.appendChild(a);
+        if('loading' !== document.readyState) c();
+        else if(window.addEventListener) document.addEventListener('DOMContentLoaded', c);
+        else {
+          var e = document.onreadystatechange || function(){};
+          document.onreadystatechange = function(b){
+            e(b);
+            'loading' !== document.readyState && (document.onreadystatechange = e, c());
+          }
+        }
+      }
+    })();
+  </script>
+</body>
+</html>

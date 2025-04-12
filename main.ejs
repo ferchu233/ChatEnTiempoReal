@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Chat & Draw</title>
+  <link href="/main.css" rel="stylesheet" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #e6f0fa, #f0f4f8);
+      color: #333;
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      background: #1e90ff;
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 200;
+    }
+
+    .header .profile-btn {
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 1.5rem;
+      cursor: pointer;
+      transition: transform 0.3s ease;
+    }
+
+    .header .profile-btn:hover {
+      transform: scale(1.1);
+    }
+
+    .header .app-name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #fff;
+    }
+
+    /* Contenedor Principal (Usuarios) */
+    .container {
+      position: fixed;
+      left: 0;
+      top: 60px;
+      width: 300px;
+      height: calc(100vh - 60px);
+      background: #fff;
+      border-right: 1px solid #e0e0e0;
+      padding: 10px;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .scroll-container {
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #1e90ff #f0f4f8;
+    }
+
+    .scroll-container::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: #1e90ff;
+      border-radius: 3px;
+    }
+
+    .scroll-container::-webkit-scrollbar-track {
+      background: #f0f4f8;
+    }
+
+    .list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .no-bullets {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .no-bullets:hover {
+      background: #e6f0fa;
+      transform: translateX(5px);
+    }
+
+    .round-image {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-right: 10px;
+      border: 2px solid #1e90ff;
+    }
+
+    .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .user-name {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .user-time {
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    /* Contenedor Total */
+    .total {
+      margin-left: 300px;
+      margin-top: 60px;
+      height: calc(100vh - 60px);
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 20px;
+    }
+
+    .der {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Chat */
+    .containerM {
+      flex: 1;
+      background: #fff;
+      border-radius: 15px;
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .title-wrapper {
+      margin-bottom: 15px;
+    }
+
+    .titulo {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e90ff;
+    }
+
+    #userNAME {
+      font-size: 1rem;
+      color: #666;
+      margin-bottom: 10px;
+    }
+
+    .containerMssg {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .old-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 15px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: #1e90ff #f9f9f9;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .old-messages::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .old-messages::-webkit-scrollbar-thumb {
+      background: #1e90ff;
+      border-radius: 3px;
+    }
+
+    .old-messages::-webkit-scrollbar-track {
+      background: #f9f9f9;
+    }
+
+    #miLista {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #miLista li {
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 15px;
+      max-width: 60%;
+      word-wrap: break-word;
+      transition: all 0.3s ease;
+    }
+
+    #miLista .me {
+      background: #1e90ff;
+      color: #fff;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    #miLista .others {
+      background: #e6f0fa;
+      color: #333;
+      margin-right: auto;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      padding-top: 15px;
+    }
+
+    #messages {
+      list-style: none;
+      flex: 1;
+      overflow-y: auto;
+      padding: 10px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #messages li {
+      padding: 10px 15px;
+      margin-bottom: 10px;
+      border-radius: 15px;
+      max-width: 60%;
+      word-wrap: break-word;
+    }
+
+    #messages .me {
+      background: #1e90ff;
+      color: #fff;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    #messages .others {
+      background: #e6f0fa;
+      color: #333;
+      margin-right: auto;
+    }
+
+    #chat-form {
+      display: flex;
+      gap: 10px;
+      padding-top: 10px;
+      position: relative;
+    }
+
+    #message-input {
+      flex: 1;
+      padding: 12px;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      background: #fff;
+      color: #333;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    #message-input:focus {
+      border-color: #1e90ff;
+      box-shadow: 0 0 10px rgba(30, 144, 255, 0.2);
+    }
+
+    #emoji-button {
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 50%;
+      padding: 8px;
+      color: #1e90ff;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #emoji-button:hover {
+      background: #e6f0fa;
+      transform: scale(1.1);
+    }
+
+    #emoji-picker {
+      display: none;
+      position: absolute;
+      bottom: 60px;
+      left: 0;
+      background: #fff;
+      border: 1px solid #e0e0e0;
+      border-radius: 10px;
+      padding: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    #emoji-picker span {
+      font-size: 1.5rem;
+      padding: 5px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #emoji-picker span:hover {
+      transform: scale(1.2);
+      color: #1e90ff;
+    }
+
+    #chat-form button {
+      padding: 12px 20px;
+      background: #1e90ff;
+      color: #fff;
+      border: none;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #chat-form button:hover {
+      background: #007bff;
+      transform: scale(1.05);
+    }
+
+    /* Menú Lateral (Galería) */
+    #sideMenu {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100%;
+      background: #fff;
+      border-left: 1px solid #e0e0e0;
+      padding: 20px;
+      transition: right 0.3s ease;
+      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.1);
+      z-index: 150;
+      overflow-y: auto;
+    }
+
+    #sideMenu h2 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #1e90ff;
+      margin-bottom: 20px;
+    }
+
+    #closeMenuButton {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: #ff4d4d;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #closeMenuButton:hover {
+      background: #ff1a1a;
+      transform: rotate(90deg);
+    }
+
+    #sideMenu ul {
+      list-style: none;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 15px;
+      height: calc(100% - 60px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #1e90ff #fff;
+    }
+
+    #sideMenu ul::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    #sideMenu ul::-webkit-scrollbar-thumb {
+      background: #1e90ff;
+      border-radius: 3px;
+    }
+
+    #sideMenu ul::-webkit-scrollbar-track {
+      background: #fff;
+    }
+
+    #sideMenu li {
+      display: flex;
+      align-items: center;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #sideMenu li:hover {
+      background: #e6f0fa;
+      transform: translateY(-3px);
+      box-shadow: 0 4px 15px rgba(0, 114, 255, 0.1);
+    }
+
+    #sideMenu img {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      margin-right: 10px;
+      border: 2px solid #1e90ff;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    #sideMenu li:hover img {
+      transform: scale(1.05);
+    }
+
+    #sideMenu strong {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    /* Modal para Imágenes */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+    }
+
+    .modal-content {
+      position: relative;
+      max-width: 90%;
+      max-height: 90vh;
+      background: #fff;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+
+    .modal-content img {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: 10px;
+      border: 2px solid #1e90ff;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: #ff4d4d;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: #ff1a1a;
+      transform: rotate(90deg);
+    }
+
+    /* Herramientas y Solicitudes */
+    .containerSoli {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .izq {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      padding: 15px;
+      background: #fff;
+      border-radius: 10px;
+      width: 60px;
+      position: fixed;
+      top: 80px;
+      left: 310px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    }
+
+    .imgStyle {
+      width: 36px;
+      height: 36px;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .imgStyle:hover {
+      background: #1e90ff;
+      transform: scale(1.1);
+    }
+
+    /* Ventana de Dibujo (Mejorada) */
+    #dibujoDiv {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 90%;
+      max-width: 700px;
+      height: 80vh;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      display: none;
+      overflow: hidden;
+      padding: 20px;
+    }
+
+    .cabecera {
+      background: #1e90ff;
+      color: #fff;
+      padding: 15px;
+      text-align: center;
+      font-size: 1.5rem;
+      font-weight: 600;
+      border-radius: 10px 10px 0 0;
+    }
+
+    .cerrar {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: #ff4d4d;
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .cerrar:hover {
+      background: #ff1a1a;
+      transform: rotate(90deg);
+    }
+
+    .tools {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      gap: 10px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 15px;
+      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .buttonPaint {
+      background: #1e90ff;
+      color: #fff;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .buttonPaint:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+    }
+
+    .color {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .color:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    .color-picker {
+      width: 40px;
+      height: 40px;
+      border: none;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      padding: 5px;
+    }
+
+    .tamañoLapiz {
+      width: 50px;
+      background: #fff;
+      border-radius: 10px;
+      -webkit-appearance: none;
+      appearance: none;
+      outline: none;
+    }
+
+    .tamañoLapiz::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 15px;
+      height: 15px;
+      background: #1e90ff;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    canvas {
+      width: 100%;
+      height: calc(100% - 100px);
+      background: #fff;
+      border-radius: 10px;
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.1);
+      cursor: crosshair;
+    }
+
+    #saveButton {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: #ff6f61;
+      color: #fff;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 20px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #saveButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(255, 111, 97, 0.5);
+    }
+
+    #uploadButton {
+      background: #6b48ff;
+      color: #fff;
+      padding: 8px 15px;
+      border: none;
+      border-radius: 15px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    #uploadButton:hover {
+      transform: scale(1.05);
+      box-shadow: 0 0 15px rgba(107, 72, 255, 0.5);
+    }
+
+    /* Espacio de Solicitudes */
+    .espacio {
+      position: fixed;
+      top: 80px;
+      left: 310px;
+      width: 300px;
+      background: #fff;
+      border-radius: 15px;
+      padding: 15px;
+      display: none;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      z-index: 150;
+    }
+
+    .espacio h3 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #1e90ff;
+      margin-bottom: 15px;
+    }
+
+    .lista-usuarios {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .usuario-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .usuario-item:hover {
+      background: #e6f0fa;
+    }
+
+    .nombre-usuario {
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #333;
+    }
+
+    .botones {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btnAceptarSolicitud, .btnRechazarSolicitud, .btnEnviarSolicitud {
+      background: #1e90ff;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 6px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btnAceptarSolicitud:hover {
+      background: #007bff;
+      transform: scale(1.1);
+    }
+
+    .btnRechazarSolicitud {
+      background: #ff4d4d;
+    }
+
+    .btnRechazarSolicitud:hover {
+      background: #ff1a1a;
+      transform: scale(1.1);
+    }
+
+    .btnEnviarSolicitud:hover {
+      background: #007bff;
+      transform: scale(1.1);
+    }
+
+    /* Notificaciones */
+    .notification {
+      position: fixed;
+      top: 80px;
+      right: 20px;
+      background: #ff6f61;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(255, 111, 97, 0.5);
+      animation: slideIn 0.5s ease, fadeOut 3s ease 2.5s forwards;
+      z-index: 300;
+      display: none;
+    }
+
+    @keyframes slideIn {
+      from { right: -300px; }
+      to { right: 20px; }
+    }
+
+    @keyframes fadeOut {
+      from { opacity: 1; }
+      to { opacity: 0; }
+    }
+
+    /* Media Queries para Responsividad */
+    @media (max-width: 768px) {
+      .container {
+        width: 100%;
+        height: calc(100vh - 60px);
+        top: 60px;
+        left: 0;
+        border-right: none;
+      }
+
+      .total {
+        margin-left: 0;
+        margin-top: 60px;
+        padding: 10px;
+      }
+
+      .izq {
+        left: 10px;
+        top: 70px;
+        width: 50px;
+      }
+
+      .espacio {
+        left: 70px;
+        top: 70px;
+        width: 250px;
+      }
+
+      #dibujoDiv {
+        width: 95%;
+        height: 70vh;
+        padding: 10px;
+      }
+
+      .tools {
+        flex-wrap: wrap;
+        gap: 5px;
+        padding: 5px;
+      }
+
+      .buttonPaint, #uploadButton {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+
+      .color {
+        width: 20px;
+        height: 20px;
+      }
+
+      .tamañoLapiz {
+        width: 40px;
+      }
+
+      #sideMenu {
+        width: 100%;
+        right: -100%;
+      }
+
+      #sideMenu ul {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <button class="profile-btn"><i class="fa-solid fa-user"></i></button>
+    <span class="app-name">Chat & Draw</span>
+    <button id="openMenuButton"><i class="fa-solid fa-image"></i></button>
+  </div>
+
+  <div class="container" style="z-index: 100;">
+    <div class="scroll-container">
+      <ul class="list">
+        <% users.forEach(function(user) { %>
+          <li class="no-bullets" data-username="<%= user.nombreUser %>" onclick="selectUser('<%= user.nombreUser %>')">
+            <img src="/perfil/<%= user.fotoPerfil %>" alt="Foto de Perfil" class="round-image">
+            <div class="user-info">
+              <strong class="user-name"><%= user.nombreUser %></strong>
+              <span class="user-time">10:30 AM</span>
+            </div>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+  </div>
+   
+  <div class="total">
+    <h1 id="UserNameId" style="display: none;"><%= username %></h1>
+    <div class="der">
+      <nav id="sideMenu">
+        <button id="closeMenuButton"><i class="fa-solid fa-xmark"></i></button>
+        <h2>Galería</h2>
+        <ul id="Dibujos">
+          <% drawingsData.drawings.forEach(function(drawing) { %>
+            <li onclick="openModal('<%= drawing.image %>')">
+              <img width="60px" height="60px" src="<%= drawing.image %>" />
+              <strong><%= drawing.sender %></strong>
+            </li>
+          <% }); %>
+        </ul>
+      </nav>
+      
+      <div class="modal" id="imageModal">
+        <div class="modal-content">
+          <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+          <img id="modalImage" src="" alt="Dibujo Ampliado" />
+        </div>
+      </div>
+
+      <div class="containerM">
+        <div class="title-wrapper">
+          <% if (selectedUser) { %>
+            <h1 class="titulo">Chat con <%= selectedUser %></h1>
+          <% } else { %>
+            <h1 class="titulo">Selecciona un chat</h1>
+          <% } %>
+        </div>
+        <div class="content">
+          <h2 id="userNAME"><%= selectedUser || '' %></h2>
+          <div class="containerMssg">
+            <div class="old-messages">
+              <ul id="miLista">
+                <% oldMessages.forEach(function(message) { %>
+                  <li class="<%= message.sender === username ? 'me' : 'others' %>">
+                    <strong><%= message.sender %>:</strong> <%= message.message %>
+                  </li>
+                <% }); %>
+              </ul>
+              <div class="chat-container">
+                <ul id="messages"></ul>
+                <form id="chat-form">
+                  <input id="recipient-input" placeholder="Destinatario" autocomplete="off" value="<%= selectedUser || '' %>" style="display: none;" />
+                  <input id="message-input" autocomplete="off" placeholder="Escribe un mensaje..." />
+                  <button type="button" id="emoji-button"><i class="fa-solid fa-face-smile"></i></button>
+                  <div id="emoji-picker">
+                    <span onclick="addEmoji('😊')">😊</span>
+                    <span onclick="addEmoji('😂')">😂</span>
+                    <span onclick="addEmoji('❤️')">❤️</span>
+                    <span onclick="addEmoji('👍')">👍</span>
+                    <span onclick="addEmoji('😢')">😢</span>
+                    <span onclick="addEmoji('😡')">😡</span>
+                    <span onclick="addEmoji('✨')">✨</span>
+                    <span onclick="addEmoji('🚀')">🚀</span>
+                  </div>
+                  <button type="submit">Enviar</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="containerSoli">
+      <div class="izq">
+        <img class="herramientas imgStyle" src="/perfil/soliAmistad.png" alt="Solicitudes de Amistad">
+        <img class="enviarDibujo imgStyle" src="/perfil/enviar.png" alt="Enviar Dibujo">
+        <img class="MyUser imgStyle" src="/perfil/editar.png" alt="Editar Perfil">
+        <img class="Salir imgStyle" src="/perfil/salir.png" alt="Salir">
+      </div>
+
+      <div id="dibujoDiv">
+        <div class="cabecera">Dibujar y Notas</div>
+        <button class="cerrar"><i class="fa-solid fa-xmark"></i></button>
+        <canvas id="lienzo"></canvas>
+        <div class="tools">
+          <button type="button" class="buttonPaint" onclick="undo()">Deshacer</button>
+          <button type="button" class="buttonPaint" onclick="redo()">Rehacer</button>
+          <button type="button" class="buttonPaint" onclick="clearCanvas()">Borrar</button>
+          <div class="color" style="background: red;" onclick="setColor('red')"></div>
+          <div class="color" style="background: blue;" onclick="setColor('blue')"></div>
+          <div class="color" style="background: black;" onclick="setColor('black')"></div>
+          <input type="color" class="color-picker" onchange="setColorPicker()">
+          <input type="range" min="1" max="50" value="2" class="tamañoLapiz" onchange="setLineWidth()">
+          <button type="button" class="buttonPaint" onclick="enableEraser()">Borrador</button>
+          <button id="uploadButton">Subir Foto</button>
+        </div>
+        <button id="saveButton">Guardar</button>
+      </div>
+
+      <div class="espacio" id="espacioBlanco">
+        <h3>Solicitudes de Amistad</h3>
+        <ul class="lista-usuarios">
+          <% MostrarAc.forEach(function(userr) { %>
+            <li class="usuario-item">
+              <form action="/rechazarSolicitud" method="post">
+                <input type="hidden" name="receiver_id">
+                <span class="nombre-usuario"><%= userr.nombreUser %></span>
+                <div class="botones">
+                  <button class="btnAceptarSolicitud" data-id="<%= userr.id %>" data-username="<%= userr.nombreUser %>"><i class="fa-sharp fa-regular fa-circle-check"></i></button>
+                  <button class="btnRechazarSolicitud" data-id="<%= userr.id %>" data-username="<%= userr.nombreUser %>"><i class="fa-solid fa-xmark"></i></button>
+                </div>
+              </form>
+            </li>
+          <% }); %>
+        </ul>
+
+        <h3>Enviar Solicitud</h3>
+        <ul class="lista-usuarios">
+          <% usersSoli.forEach(function(userr) { %>
+            <li class="usuario-item">
+              <form action="/enviarSolicitud" method="post">
+                <input type="hidden" name="receiver_id" value="<%= userr.id %>">
+                <span class="nombre-usuario"><%= userr.nombreUser %></span>
+                <button class="btnEnviarSolicitud" data-id="<%= userr.id %>" data-username="<%= userr.nombreUser %>"><i class="fa-solid fa-user-plus"></i></button>
+              </form>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="notification" id="notification">¡Nuevo mensaje recibido!</div>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    $(document).ready(function() {
+      $('.btnRechazarSolicitud').click(function(e) {
+        e.preventDefault();
+        const remitenteId = $(this).data('id');
+        const remitenteNombre = $(this).data('username');
+        $.post('/api/friend-requests/reject', {
+          remitenteId: remitenteId,
+          remitenteNombre: remitenteNombre
+        }, function(data, status) {
+          console.log('Solicitud rechazada:', data);
+          location.reload();
+        });
+      });
+
+      $('.btnAceptarSolicitud').click(function(e) {
+        e.preventDefault();
+        const remitenteId = $(this).data('id');
+        const remitenteNombre = $(this).data('username');
+        $.post('/api/friend-requests/accept', {
+          remitenteId: remitenteId,
+          remitenteNombre: remitenteNombre
+        }, function(data, status) {
+          console.log('Solicitud aceptada:', data);
+          location.reload();
+        });
+      });
+
+      $('.btnEnviarSolicitud').click(function(e) {
+        e.preventDefault();
+        const receiverId = $(this).data('id');
+        const receiverUsername = $(this).data('username');
+        $.post('/api/friend-requests', {
+          receiver_id: receiverId,
+          receiver_username: receiverUsername
+        }, function(data, status) {
+          console.log('Solicitud enviada:', data);
+          location.reload();
+        });
+      });
+    });
+
+    document.querySelector('.herramientas').addEventListener('click', function() {
+      var espacio = document.getElementById('espacioBlanco');
+      espacio.style.display = (espacio.style.display === 'block') ? 'none' : 'block';
+    });
+
+    window.addEventListener('click', function(event) {
+      var espacio = document.getElementById('espacioBlanco');
+      var target = event.target;
+      if (target !== espacio && target !== document.querySelector('.herramientas')) {
+        espacio.style.display = 'none';
+      }
+    });
+
+    const h1Element = document.getElementById('UserNameId');
+    const usernameText = h1Element.textContent;
+    socket.emit('username', usernameText);
+
+    document.getElementById('chat-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const messageInput = document.getElementById('message-input');
+      const recipientInput = document.getElementById('recipient-input');
+      const message = messageInput.value.trim();
+      const recipient = recipientInput.value.trim();
+      if (message && recipient) {
+        socket.emit('chat message', { message, recipient });
+        messageInput.value = '';
+        messageInput.focus();
+        showNotification('Mensaje enviado!');
+      }
+    });
+
+    socket.on('chat message', (msg) => {
+      const { message, sender, recipient } = msg;
+      const isMe = sender === usernameText && recipient === document.getElementById('recipient-input').value.trim();
+      appendMessage(`${sender}: ${message}`, isMe);
+      if (!isMe) showNotification('¡Nuevo mensaje recibido!');
+    });
+
+    socket.on('old messages', (data) => {
+      const { recipient, messages } = data;
+      const oldMessagesList = document.getElementById('miLista');
+      while (oldMessagesList.firstChild) {
+        oldMessagesList.removeChild(oldMessagesList.firstChild);
+      }
+      messages.forEach((msg) => {
+        const li = document.createElement('li');
+        li.textContent = `${msg.sender}: ${msg.message}`;
+        li.classList.add(msg.sender === usernameText ? 'me' : 'others');
+        oldMessagesList.appendChild(li);
+      });
+      const oldMessagesContainer = document.querySelector('.old-messages');
+      oldMessagesContainer.scrollTop = oldMessagesContainer.scrollHeight;
+      console.log(`Mensajes antiguos cargados para ${recipient}:`, messages);
+    });
+
+    function appendMessage(message, isMe) {
+      const messages = document.getElementById('messages');
+      const li = document.createElement('li');
+      li.textContent = message;
+      if (isMe) {
+        li.classList.add('me');
+      } else {
+        li.classList.add('others');
+      }
+      messages.appendChild(li);
+      const oldMessagesContainer = document.querySelector('.old-messages');
+      oldMessagesContainer.scrollTop = oldMessagesContainer.scrollHeight;
+    }
+
+    function selectUser(selectedUser) {
+      const recipientInput = document.getElementById('recipient-input');
+      recipientInput.value = selectedUser;
+      document.querySelector('h2#userNAME').textContent = selectedUser;
+      document.querySelector('.titulo').textContent = `Chat con ${selectedUser}`;
+      socket.emit('request old messages', { recipient: selectedUser });
+      ocultarChalra();
+      actualizarDibujos(usernameText, selectedUser);
+    }
+
+    function actualizarDibujos(sender, recipient) {
+      if (!sender || !recipient) return;
+      const ulElement = document.getElementById('Dibujos');
+      while (ulElement.firstChild) {
+        ulElement.removeChild(ulElement.firstChild);
+      }
+      $.get('/api/drawings', { sender: sender, recipient: recipient }, function(data, status) {
+        if (status === 'success' && data.drawings) {
+          console.log('Dibujos recibidos del servidor:', data);
+          data.drawings.forEach(function(drawing) {
+            const li = document.createElement('li');
+            li.innerHTML = `<img width="60px" height="60px" src="${drawing.image}" alt="Dibujo de ${drawing.sender}" /><strong>${drawing.sender}</strong>`;
+            li.onclick = () => openModal(drawing.image);
+            ulElement.appendChild(li);
+          });
+        } else {
+          console.log('No se recibieron dibujos válidos:', data);
+        }
+      }).fail(function(jqXHR, textStatus, errorThrown) {
+        console.error('Error al actualizar dibujos:', textStatus, errorThrown);
+      });
+    }
+
+    const openMenuButton = document.getElementById('openMenuButton');
+    const closeMenuButton = document.getElementById('closeMenuButton');
+    const sideMenu = document.getElementById('sideMenu');
+
+    function openMenu() {
+      sideMenu.style.right = '0';
+    }
+
+    function closeMenu() {
+      sideMenu.style.right = '-400px';
+    }
+
+    openMenuButton.addEventListener('click', openMenu);
+    closeMenuButton.addEventListener('click', closeMenu);
+
+    window.addEventListener('click', function(event) {
+      const target = event.target;
+      if (sideMenu.style.right === '0px' && !sideMenu.contains(target) && target !== openMenuButton) {
+        closeMenu();
+      }
+    });
+
+    function openModal(imageSrc) {
+      const modal = document.getElementById('imageModal');
+      const modalImage = document.getElementById('modalImage');
+      modalImage.src = imageSrc;
+      modal.style.display = 'flex';
+    }
+
+    function closeModal() {
+      const modal = document.getElementById('imageModal');
+      modal.style.display = 'none';
+    }
+
+    function showNotification(message) {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.style.display = 'block';
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3500);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const canvas = document.getElementById('lienzo');
+      const ctx = canvas.getContext('2d');
+
+      canvas.width = canvas.parentElement.clientWidth - 40;
+      canvas.height = canvas.parentElement.clientHeight - 140;
+
+      let prevX, prevY;
+      let isDrawing = false;
+      let color = 'black';
+      let lineWidth = 2;
+      let history = [];
+      let historyIndex = -1;
+
+      function saveState() {
+        history = history.slice(0, historyIndex + 1);
+        history.push(canvas.toDataURL());
+        historyIndex++;
+      }
+
+      function undo() {
+        if (historyIndex > 0) {
+          historyIndex--;
+          const img = new Image();
+          img.src = history[historyIndex];
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+          };
+        }
+      }
+
+      function redo() {
+        if (historyIndex < history.length - 1) {
+          historyIndex++;
+          const img = new Image();
+          img.src = history[historyIndex];
+          img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+          };
+        }
+      }
+
+      function getMousePos(event) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        return {
+          x: (event.clientX - rect.left) * scaleX,
+          y: (event.clientY - rect.top) * scaleY
+        };
+      }
+
+      function dibujar(event) {
+        if (!isDrawing) return;
+        const mousePos = getMousePos(event);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = lineWidth;
+        ctx.lineCap = 'round';
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        ctx.moveTo(prevX, prevY);
+        ctx.lineTo(mousePos.x, mousePos.y);
+        ctx.stroke();
+        prevX = mousePos.x;
+        prevY = mousePos.y;
+      }
+
+      canvas.addEventListener('mousedown', (event) => {
+        isDrawing = true;
+        const mousePos = getMousePos(event);
+        prevX = mousePos.x;
+        prevY = mousePos.y;
+        saveState();
+      });
+
+      canvas.addEventListener('mousemove', dibujar);
+      canvas.addEventListener('mouseup', () => isDrawing = false);
+      canvas.addEventListener('mouseout', () => isDrawing = false);
+
+      function clearCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        saveState();
+      }
+
+      function setColor(newColor) {
+        color = newColor;
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      function setColorPicker() {
+        color = document.querySelector('.color-picker').value;
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      function setLineWidth() {
+        lineWidth = document.querySelector('.tamañoLapiz').value;
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      function enableEraser() {
+        color = '#ffffff';
+        ctx.globalCompositeOperation = 'destination-out';
+      }
+
+      window.clearCanvas = clearCanvas;
+      window.setColor = setColor;
+      window.setColorPicker = setColorPicker;
+      window.setLineWidth = setLineWidth;
+      window.enableEraser = enableEraser;
+      window.undo = undo;
+      window.redo = redo;
+
+      const saveButton = document.getElementById('saveButton');
+      saveButton.addEventListener('click', () => {
+        const imageBase64 = canvas.toDataURL('image/png');
+        const sender = document.getElementById('UserNameId').textContent;
+        const recipient = document.getElementById('recipient-input').value.trim();
+
+        if (!recipient) {
+          alert('Por favor, selecciona un destinatario antes de guardar el dibujo.');
+          return;
+        }
+
+        console.log('Enviando dibujo:', { nombre: sender, imagen: imageBase64, descripcion: recipient });
+
+        fetch('/api/drawings', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            nombre: sender,
+            imagen: imageBase64,
+            descripcion: recipient
+          })
+        })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Error en la respuesta del servidor: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Respuesta del servidor:', data);
+          if (data.success) {
+            actualizarDibujos(sender, recipient);
+            document.getElementById('dibujoDiv').style.display = 'none';
+            clearCanvas();
+            showNotification('Dibujo guardado!');
+          } else {
+            console.error('El servidor no confirmó el éxito:', data);
+          }
+        })
+        .catch(error => {
+          console.error('Error al enviar el dibujo:', error);
+        });
+      });
+
+      const uploadButton = document.getElementById('uploadButton');
+      uploadButton.addEventListener('click', () => {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.onchange = (e) => {
+          const file = e.target.files[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+              const img = new Image();
+              img.onload = () => {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                const aspectRatio = img.width / img.height;
+                let newWidth = canvas.width;
+                let newHeight = canvas.width / aspectRatio;
+                if (newHeight > canvas.height) {
+                  newHeight = canvas.height;
+                  newWidth = canvas.height * aspectRatio;
+                }
+                const offsetX = (canvas.width - newWidth) / 2;
+                const offsetY = (canvas.height - newHeight) / 2;
+                ctx.drawImage(img, offsetX, offsetY, newWidth, newHeight);
+                saveState();
+              };
+              img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+          }
+        };
+        input.click();
+      });
+
+      const emojiButton = document.getElementById('emoji-button');
+      const emojiPicker = document.getElementById('emoji-picker');
+      emojiButton.addEventListener('click', () => {
+        emojiPicker.style.display = emojiPicker.style.display === 'block' ? 'none' : 'block';
+      });
+
+      window.addEventListener('click', (event) => {
+        if (!emojiButton.contains(event.target) && !emojiPicker.contains(event.target)) {
+          emojiPicker.style.display = 'none';
+        }
+      });
+    });
+
+    function addEmoji(emoji) {
+      const messageInput = document.getElementById('message-input');
+      messageInput.value += emoji;
+      messageInput.focus();
+    }
+
+    const enviarDibujoImg = document.querySelector('.enviarDibujo');
+    const dibujoDiv = document.getElementById('dibujoDiv');
+    enviarDibujoImg.addEventListener('click', () => {
+      dibujoDiv.style.display = 'block';
+    });
+
+    const cerrarBtn = document.querySelector('.cerrar');
+    cerrarBtn.addEventListener('click', () => {
+      dibujoDiv.style.display = 'none';
+    });
+
+    function ocultarChalra() {
+      const ulLista = document.getElementById("messages");
+      const liElementos = ulLista.querySelectorAll("li");
+      liElementos.forEach((li) => {
+        li.remove();
+      });
+    }
+  </script>
+</body>
+</html>
